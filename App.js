@@ -1,40 +1,53 @@
 import { StatusBar } from "expo-status-bar";
 import { LoginScreen } from "./screens/LoginScreen/LoginScreen";
 import { RegistrationScreen } from "./screens/RegistrationScreen/RegistrationScreen";
-import AppLoading from "expo-app-loading";
-import React, { useState } from "react";
-import { Dimensions, StyleSheet } from "react-native";
+import React, { useCallback, useState, useEffect } from "react";
+import { Dimensions, StyleSheet, View } from "react-native";
 
 import * as Font from "expo-font";
+import * as SplashScreen from "expo-splash-screen";
 
-const loadFonts = async () => {
-  await Font.loadAsync({
-    "Roboto-Regular": require("./fonts/Roboto-Regular.ttf"),
-    "Roboto-Medium": require("./fonts/Roboto-Medium.ttf"),
-  });
-};
+SplashScreen.preventAutoHideAsync();
 
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
 
 export default function App() {
   const [isReady, setIsReady] = useState(false);
+  useEffect(() => {
+    async function prepare() {
+      try {
+        // Pre-load fonts, make any API calls you need to do here
+        await Font.loadAsync({
+          "Roboto-Regular": require("./fonts/Roboto-Regular.ttf"),
+          "Roboto-Medium": require("./fonts/Roboto-Medium.ttf"),
+        });
+      } catch (e) {
+        console.warn(e);
+      } finally {
+        setIsReady(true);
+      }
+    }
+
+    prepare();
+  }, []);
+
+  const onLayoutRootView = useCallback(async () => {
+    if (isReady) {
+      await SplashScreen.hideAsync();
+    }
+  }, [isReady]);
+
   if (!isReady) {
-    return (
-      <AppLoading
-        startAsync={loadFonts}
-        onFinish={() => setIsReady(true)}
-        onError={console.warn}
-      />
-    );
+    return null;
   }
 
   return (
-    <>
+    <View onLayout={onLayoutRootView} style={{ flex: 1 }}>
       <StatusBar />
-      <LoginScreen styles={styles} />
-      {/* <RegistrationScreen styles={styles} /> */}
-    </>
+      {/* <LoginScreen styles={styles} /> */}
+      <RegistrationScreen />
+    </View>
   );
 }
 
@@ -55,7 +68,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     backgroundColor: "#fff",
-    width: "100%",
+    // width: "100%",
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
     paddingHorizontal: 16,
@@ -90,6 +103,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     lineHeight: 19,
     fontFamily: "Roboto-Regular",
+    marginBottom: 78,
   },
   show: {
     position: "absolute",
@@ -99,7 +113,6 @@ const styles = StyleSheet.create({
   title: {
     marginBottom: 30,
     fontSize: 30,
-    // fontWeight: "bold",
     textAlign: "center",
     fontFamily: "Roboto-Medium",
   },
