@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   TextInput,
   View,
@@ -16,12 +16,21 @@ import {
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
 
-export const RegistrationScreen = () => {
+export const RegistrationScreen = ({ navigation }) => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isOpenPassword, setIsOpenPassword] = useState(false);
   const [isShowKeyboard, setIsShowKeyboard] = useState(false);
+
+  useEffect(() => {
+    const hideKeyboard = Keyboard.addListener("keyboardDidHide", () => {
+      setIsShowKeyboard(false);
+    });
+    return () => {
+      hideKeyboard.remove();
+    };
+  }, []);
 
   const keyboardHide = () => {
     setIsShowKeyboard(false);
@@ -53,81 +62,75 @@ export const RegistrationScreen = () => {
     setEmail("");
     setPassword("");
     setIsShowKeyboard(false);
+    navigation.navigate("Home");
   };
 
   return (
-    <TouchableWithoutFeedback onPress={keyboardHide}>
-      <View style={{ flex: 1 }}>
-        <Image
-          style={styles.background}
-          source={require("../../images/imgBG.png")}
-          resizeMode="cover"
-        />
-        <View
-          style={{
-            ...styles.wrapper,
-            marginTop: isShowKeyboard ? 150 : 260,
-          }}
-        >
-          <View style={styles.formContainer}>
-            <View style={styles.avaWrapper}>
-              <View style={styles.avatar}>
-                <View style={styles.addPhoto}>
-                  <Image source={require("../../images/add.png")} />
-                </View>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={{ flex: 1 }}
+    >
+      <TouchableWithoutFeedback onPress={keyboardHide}>
+        <View style={{ flex: 1, justifyContent: "flex-end" }}>
+          <Image
+            style={styles.background}
+            source={require("../../images/imgBG.png")}
+            resizeMode="cover"
+          />
+
+          <View style={styles.wrapper}>
+            {/* <View style={styles.formContainer}> */}
+            {/* <View style={styles.avaWrapper}> */}
+            <View style={styles.avatar}>
+              <View style={styles.addPhoto}>
+                <Image source={require("../../images/add.png")} />
               </View>
             </View>
-            <KeyboardAvoidingView
-              behavior={Platform.OS == "ios" ? "padding" : "height"}
-            >
-              <View>
-                <Text style={styles.title}>Registration</Text>
+            {/* </View> */}
 
-                <TextInput
-                  style={styles.input}
-                  value={name}
-                  onChangeText={nameHandler}
-                  placeholder="Username"
-                  placeholderTextColor="#BDBDBD"
-                  onFocus={() => {
-                    setIsShowKeyboard(true);
-                  }}
-                  onSubmitEditing={onRegister}
-                />
-                <TextInput
-                  style={styles.input}
-                  value={email}
-                  onChangeText={emailHandler}
-                  placeholder="Email"
-                  placeholderTextColor="#BDBDBD"
-                  onFocus={() => {
-                    setIsShowKeyboard(true);
-                  }}
-                  onSubmitEditing={onRegister}
-                />
-                <View>
-                  <TextInput
-                    style={styles.input}
-                    value={password}
-                    onChangeText={passwordHandler}
-                    secureTextEntry={!isOpenPassword}
-                    placeholder="Password"
-                    placeholderTextColor="#BDBDBD"
-                    onFocus={() => {
-                      setIsShowKeyboard(true);
-                    }}
-                    onSubmitEditing={onRegister}
-                  />
-                  <Text style={styles.show} onPress={isOpenPasswordHandler}>
-                    {isOpenPassword ? "hide" : "show"}
-                  </Text>
-                </View>
-              </View>
-            </KeyboardAvoidingView>
+            <Text style={{ ...styles.title, marginTop: 92 }}>Registration</Text>
 
-            {isShowKeyboard ? (
-              ""
-            ) : (
+            <TextInput
+              style={styles.input}
+              value={name}
+              onChangeText={nameHandler}
+              placeholder="Username"
+              placeholderTextColor="#BDBDBD"
+              onPressIn={() => {
+                setIsShowKeyboard(true);
+              }}
+              onSubmitEditing={onRegister}
+            />
+            <TextInput
+              style={styles.input}
+              value={email}
+              onChangeText={emailHandler}
+              placeholder="Email"
+              placeholderTextColor="#BDBDBD"
+              onPressIn={() => {
+                setIsShowKeyboard(true);
+              }}
+              onSubmitEditing={onRegister}
+            />
+            <View>
+              <TextInput
+                style={styles.input}
+                value={password}
+                onChangeText={passwordHandler}
+                secureTextEntry={!isOpenPassword}
+                placeholder="Password"
+                placeholderTextColor="#BDBDBD"
+                onPressIn={() => {
+                  setIsShowKeyboard(true);
+                }}
+                onSubmitEditing={onRegister}
+              />
+              <Text style={styles.show} onPress={isOpenPasswordHandler}>
+                {isOpenPassword ? "hide" : "show"}
+              </Text>
+            </View>
+
+            {!isShowKeyboard && (
               <>
                 <TouchableOpacity
                   activeOpacity={0.8}
@@ -137,42 +140,37 @@ export const RegistrationScreen = () => {
                   <Text style={styles.btnTitle}>Register</Text>
                 </TouchableOpacity>
                 <View>
-                  <Text
-                    style={{
-                      ...styles.loginBox,
-                      marginBottom: 78,
-                    }}
-                  >
-                    Already have a profile? Log in
+                  <Text style={styles.loginBox}>
+                    Already have a profile?{" "}
+                    <Text
+                      style={{ color: "#FF6C00" }}
+                      onPress={() => navigation.navigate("Login")}
+                    >
+                      Log in
+                    </Text>
                   </Text>
                 </View>
               </>
             )}
+            {/* </View> */}
           </View>
         </View>
-      </View>
-    </TouchableWithoutFeedback>
+      </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
   );
 };
 
 const styles = StyleSheet.create({
   background: {
-    flex: 1,
     position: "absolute",
     width: windowWidth,
     height: windowHeight,
     top: 0,
     left: 0,
   },
-  formContainer: {
-    flex: 1,
-    justifyContent: "flex-end",
-  },
+
   wrapper: {
-    flex: 1,
-    justifyContent: "center",
     backgroundColor: "#fff",
-    // width: "100%",
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
     paddingHorizontal: 16,
@@ -207,6 +205,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     lineHeight: 19,
     fontFamily: "Roboto-Regular",
+    marginBottom: 70,
   },
   show: {
     position: "absolute",
@@ -224,14 +223,12 @@ const styles = StyleSheet.create({
     height: 120,
     borderRadius: 16,
     backgroundColor: "#F6F6F6",
-    marginHorizontal: "auto",
-  },
-  avaWrapper: {
+
     position: "absolute",
     top: -60,
-    width: "100%",
-    alignItems: "center",
+    left: (windowWidth - 121) / 2,
   },
+
   addPhoto: {
     position: "absolute",
     right: -12.5,
