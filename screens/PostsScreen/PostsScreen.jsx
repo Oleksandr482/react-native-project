@@ -1,14 +1,26 @@
-import { StyleSheet, Text, View, Image, ScrollView } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  View,
+  Image,
+  ScrollView,
+  TouchableOpacity,
+} from "react-native";
 
-export const PostsScreen = () => {
+export const PostsScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.screenTitle}>Posts</Text>
-        <Image
-          style={{ position: "absolute", right: 16, bottom: 10 }}
-          source={require("../../images/log-out.png")}
-        />
+        <TouchableOpacity
+          activeOpacity={0.8}
+          onPress={() => navigation.navigate("Login")}
+        >
+          <Image
+            style={{ position: "absolute", right: 16, bottom: 10 }}
+            source={require("../../images/log-out.png")}
+          />
+        </TouchableOpacity>
       </View>
       <ScrollView>
         <View style={styles.userWrapper}>

@@ -13,11 +13,12 @@ import {
   TouchableOpacity,
   Dimensions,
 } from "react-native";
+import { useRoute } from "../../router";
 
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
 
-export const ProfileScreen = () => {
+export const ProfileScreen = ({ navigation }) => {
   return (
     <ScrollView style={{ flex: 1 }}>
       <Image
@@ -36,11 +37,15 @@ export const ProfileScreen = () => {
             <Image source={require("../../images/delete.png")} />
           </View>
         </View>
-        <Image
-          
-          style={{ position: "absolute", top: 22, right: 16 }}
-          source={require("../../images/log-out.png")}
-        />
+        <TouchableOpacity
+          activeOpacity={0.8}
+          onPress={() => navigation.navigate("Login")}
+        >
+          <Image
+            style={{ position: "absolute", top: 22, right: 16 }}
+            source={require("../../images/log-out.png")}
+          />
+        </TouchableOpacity>
         <Text style={{ ...styles.title, marginTop: 92 }}>Natali Romanova</Text>
         <View style={{ marginBottom: 0 }}>
           <View style={{ marginBottom: 24 }}>
