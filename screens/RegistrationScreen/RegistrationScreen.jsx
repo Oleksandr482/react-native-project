@@ -12,6 +12,7 @@ import {
   TouchableOpacity,
   Dimensions,
 } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
@@ -126,7 +127,15 @@ export const RegistrationScreen = ({ navigation }) => {
                 onSubmitEditing={onRegister}
               />
               <Text style={styles.show} onPress={isOpenPasswordHandler}>
-                {isOpenPassword ? "hide" : "show"}
+                {isOpenPassword ? (
+                  <Ionicons
+                    name="md-eye-off-outline"
+                    size={30}
+                    color="#bdbdbd"
+                  />
+                ) : (
+                  <Ionicons name="md-eye-outline" size={30} color="#bdbdbd" />
+                )}
               </Text>
             </View>
 
@@ -185,6 +194,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     borderRadius: 8,
     fontFamily: "Roboto-Regular",
+    color: "#bdbdbd",
   },
   button: {
     backgroundColor: "#FF6C00",
@@ -210,7 +220,7 @@ const styles = StyleSheet.create({
   show: {
     position: "absolute",
     right: 10,
-    top: 15,
+    top: 9,
   },
   title: {
     marginBottom: 30,
