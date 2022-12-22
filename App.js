@@ -5,7 +5,6 @@ import { Dimensions, StyleSheet, View } from "react-native";
 
 import * as Font from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
-import { CommentsScreen } from "./screens/CommentsScreen/CommentsScreen";
 import { NavigationContainer } from "@react-navigation/native";
 import { useRoute } from "./router";
 
@@ -46,28 +45,7 @@ export default function App() {
   return (
     <View onLayout={onLayoutRootView} style={{ flex: 1 }}>
       <NavigationContainer>{routing}</NavigationContainer>
+      {/* <Map /> */}
     </View>
   );
-}
-
-{
-  /* <StatusBar />; */
-}
-{
-  /* <LoginScreen styles={styles} /> */
-}
-{
-  /* <RegistrationScreen styles={styles} /> */
-}
-{
-  /* <PostsScreen /> */
-}
-{
-  /* <CreatePostScreen /> */
-}
-{
-  /* <CommentsScreen /> */
-}
-{
-  /* <ProfileScreen />; */
 }
