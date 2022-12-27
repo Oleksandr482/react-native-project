@@ -13,6 +13,8 @@ import {
   StyleSheet,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { useDispatch } from "react-redux";
+import { logIn } from "../../redux/auth/authOperations";
 
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
@@ -22,6 +24,8 @@ export const LoginScreen = ({ navigation }) => {
   const [password, setPassword] = useState("");
   const [isOpenPassword, setIsOpenPassword] = useState(false);
   const [isShowKeyboard, setIsShowKeyboard] = useState(false);
+
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const hideKeyboard = Keyboard.addListener("keyboardDidHide", () => {
@@ -48,12 +52,10 @@ export const LoginScreen = ({ navigation }) => {
   };
 
   const onLogin = () => {
-    console.log({ email, password });
-
+    dispatch(logIn({ email, password }));
     setEmail("");
     setPassword("");
     setIsShowKeyboard(false);
-    navigation.navigate("Home");
   };
 
   return (

@@ -19,14 +19,8 @@ export const MapScreen = ({ navigation, route }) => {
       if (status !== "granted") {
         console.log("Permission to access location was denied");
       }
-      if (route.params) {
-        const coords = {
-          latitude: route.params.latitude,
-          longitude: route.params.longitude,
-        };
-        setLocation(coords);
-      }
     };
+    setLocation(route.params);
   }, [route.params]);
 
   return (

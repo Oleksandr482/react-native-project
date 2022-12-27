@@ -5,8 +5,10 @@ import { Dimensions, StyleSheet, View } from "react-native";
 
 import * as Font from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
-import { NavigationContainer } from "@react-navigation/native";
-import { useRoute } from "./router";
+import { Provider } from "react-redux";
+import { store } from "./redux/store";
+import { auth } from "./firebase/config";
+import { Main } from "./components/Main/Main";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -40,12 +42,11 @@ export default function App() {
     return null;
   }
 
-  const routing = useRoute(false);
-
   return (
-    <View onLayout={onLayoutRootView} style={{ flex: 1 }}>
-      <NavigationContainer>{routing}</NavigationContainer>
-      {/* <Map /> */}
-    </View>
+    <Provider store={store}>
+      <View onLayout={onLayoutRootView} style={{ flex: 1 }}>
+        <Main />
+      </View>
+    </Provider>
   );
 }

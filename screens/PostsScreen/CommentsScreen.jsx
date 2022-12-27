@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import {
   Image,
   StyleSheet,
@@ -5,9 +6,100 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  FlatList,
+  SafeAreaView,
+  ScrollView,
 } from "react-native";
+import { useSelector } from "react-redux";
+import { db } from "../../firebase/config";
+import { selectUser } from "../../redux/auth/authSelectors";
 
-export const CommentsScreen = ({ navigation }) => {
+export const CommentsScreen = ({ navigation, route }) => {
+  const [comment, setComment] = useState("");
+  const [allComments, setAllComments] = useState([]);
+  const { postId, photoUrl } = route.params;
+  const user = useSelector(selectUser);
+
+  useEffect(() => {
+    getAllComments();
+  }, []);
+
+  const uploadComment = async () => {
+    try {
+      await db.collection("posts").doc(postId).collection("comments").add({
+        userName: user.name,
+        comment: comment,
+        date: Date.now(),
+        userId: user.userId,
+      });
+    } catch (e) {
+      console.log(e.message);
+    }
+  };
+
+  const getAllComments = async () => {
+    try {
+      let comments = [];
+      const snapshot = await db
+        .collection("posts")
+        .doc(postId)
+        .collection("comments")
+        .get();
+      await snapshot.forEach((doc) => {
+        comments = [...comments, doc.data()];
+      });
+      await setAllComments(comments);
+    } catch (e) {
+      console.log(e.message);
+    }
+  };
+
+  const createComment = () => {
+    uploadComment();
+    setComment("");
+  };
+
+  const Comment = ({ item }) => {
+    const { userId, date, comment, userName } = item;
+    const commentTime = new Date(date).toTimeString().slice(0, 5);
+    const day = new Date(date).getDate();
+    const month = new Date(date).getMonth() + 1;
+    const year = new Date(date).getFullYear();
+    const commentDate = `${day}.${month}.${year} | ${commentTime}`;
+
+    return userId === user.userId ? (
+      <View style={styles.commentWrapper}>
+        <Image
+          style={styles.commentImage}
+          source={require("../../images/userAva.jpg")}
+        />
+        <View style={styles.textBox}>
+          <Text style={{ marginBottom: 8 }}>{comment}</Text>
+          <Text style={styles.commentDate}>{commentDate}</Text>
+        </View>
+      </View>
+    ) : (
+      <View style={{ ...styles.commentWrapper, flexDirection: "row" }}>
+        <Image
+          style={{ ...styles.commentImage, marginRight: 16, marginLeft: 0 }}
+          source={require("../../images/authUser.jpg")}
+        />
+        <View
+          style={{
+            ...styles.textBox,
+            borderTopStartRadius: 0,
+            borderTopEndRadius: 6,
+          }}
+        >
+          <Text style={{ marginBottom: 8 }}>{comment}</Text>
+          <Text style={{ ...styles.commentDate, textAlign: "right" }}>
+            {commentDate}
+          </Text>
+        </View>
+      </View>
+    );
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -21,47 +113,13 @@ export const CommentsScreen = ({ navigation }) => {
       </View>
       <View style={styles.main}>
         <View style={styles.addPhoto}>
-          <Image
-            style={styles.photo}
-            source={require("../../images/111.png")}
-          />
+          <Image style={styles.photo} source={{ uri: photoUrl }} />
         </View>
-        <View style={styles.commetsSection}>
-          <View style={styles.commentWrapper}>
-            <Image
-              style={styles.commentImage}
-              source={require("../../images/userAva.jpg")}
-            />
-            <View style={styles.textBox}>
-              <Text style={{ marginBottom: 8 }}>
-                A fast 50mm like f1.8 would help with the bokeh. I’ve been using
-                primes as they tend to get a bit sharper images.
-              </Text>
-              <Text style={styles.commentDate}>09 июня, 2020 | 09:14</Text>
-            </View>
-          </View>
-          <View style={{ ...styles.commentWrapper, flexDirection: "row" }}>
-            <Image
-              style={{ ...styles.commentImage, marginRight: 16, marginLeft: 0 }}
-              source={require("../../images/authUser.jpg")}
-            />
-            <View
-              style={{
-                ...styles.textBox,
-                borderTopStartRadius: 0,
-                borderTopEndRadius: 6,
-              }}
-            >
-              <Text style={{ marginBottom: 8 }}>
-                A fast 50mm like f1.8 would help with the bokeh. I’ve been using
-                primes as they tend to get a bit sharper images.
-              </Text>
-              <Text style={{ ...styles.commentDate, textAlign: "right" }}>
-                09 июня, 2020 | 09:14
-              </Text>
-            </View>
-          </View>
-        </View>
+        <FlatList
+          data={allComments}
+          renderItem={Comment}
+          keyExtractor={(item) => item.date}
+        />
       </View>
       <View style={styles.footer}>
         <View>
@@ -69,11 +127,15 @@ export const CommentsScreen = ({ navigation }) => {
             style={styles.footerInput}
             placeholder="Comment..."
             placeholderTextColor="#bdbdbd"
+            value={comment}
+            onChangeText={setComment}
           />
-          <Image
-            source={require("../../images/send.png")}
+          <TouchableOpacity
+            onPress={createComment}
             style={{ position: "absolute", top: 8, right: 8 }}
-          />
+          >
+            <Image source={require("../../images/send.png")} style={{}} />
+          </TouchableOpacity>
         </View>
       </View>
     </View>
@@ -83,6 +145,7 @@ export const CommentsScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: "#ffffff",
   },
   header: {
     paddingVertical: 11,
@@ -100,7 +163,7 @@ const styles = StyleSheet.create({
   main: {
     paddingHorizontal: 16,
     paddingTop: 32,
-
+    paddingBottom: 150,
     height: "100%",
   },
   addPhoto: {
@@ -126,6 +189,7 @@ const styles = StyleSheet.create({
     lineHeight: 19,
     color: "#bdbdbd",
   },
+
   commentWrapper: {
     flexDirection: "row-reverse",
     marginBottom: 24,

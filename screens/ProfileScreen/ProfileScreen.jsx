@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   TextInput,
   View,
@@ -12,15 +12,121 @@ import {
   ScrollView,
   TouchableOpacity,
   Dimensions,
+  FlatList,
 } from "react-native";
-import { useRoute } from "../../router";
+import { useDispatch, useSelector } from "react-redux";
+import { db } from "../../firebase/config";
+import { logOut } from "../../redux/auth/authOperations";
+import { selectUser } from "../../redux/auth/authSelectors";
 
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
 
 export const ProfileScreen = ({ navigation }) => {
+  const dispatch = useDispatch();
+  const user = useSelector(selectUser);
+  const [myPosts, setMyPosts] = useState([]);
+
+  useEffect(() => {
+    getMyPosts();
+  }, []);
+
+  const getMyPosts = async () => {
+    try {
+      const snapshot = await db
+        .collection("posts")
+        .where("userId", "==", user.userId)
+        .get();
+      let posts = [];
+      await snapshot.forEach((doc) => {
+        posts = [...posts, { ...doc.data(), id: doc.id }];
+      });
+      await setMyPosts(posts);
+    } catch (e) {
+      console.log(e.message);
+    }
+  };
+
+  const Post = ({ item }) => {
+    const { id, photoUrl, title, location, locationCoords } = item;
+    return (
+      <View style={{ marginBottom: 24 }}>
+        <Image
+          style={{ width: "100%", height: 240, borderRadius: 8 }}
+          source={{ uri: photoUrl }}
+        />
+        <Text
+          style={{
+            ...styles.contentText,
+            fontFamily: "Roboto-Medium",
+            marginVertical: 8,
+          }}
+        >
+          {title}
+        </Text>
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "baseline",
+          }}
+        >
+          <View style={{ flexDirection: "row" }}>
+            <View
+              style={{
+                flexDirection: "row",
+                marginRight: 24,
+                alignItems: "center",
+              }}
+            >
+              <TouchableOpacity
+                onPress={() =>
+                  navigation.navigate("Comments", {
+                    postId: id,
+                    photoUrl: photoUrl,
+                  })
+                }
+              >
+                <Image
+                  style={{ marginRight: 6 }}
+                  source={require("../../images/commentIcon.png")}
+                />
+              </TouchableOpacity>
+              <Text style={styles.contentText}>8</Text>
+            </View>
+            <View style={{ flexDirection: "row", alignItems: "center" }}>
+              <Image
+                style={{ marginRight: 6 }}
+                source={require("../../images/likeIcon.png")}
+              />
+              <Text style={styles.contentText}>153</Text>
+            </View>
+          </View>
+          <View style={{ flexDirection: "row", alignItems: "center" }}>
+            <TouchableOpacity
+              onPress={() => navigation.navigate("Map", locationCoords)}
+            >
+              <Image
+                style={{ marginRight: 4 }}
+                source={require("../../images/map-pin.png")}
+              />
+            </TouchableOpacity>
+            <Text
+              style={{
+                ...styles.contentText,
+                textDecorationLine: "underline",
+              }}
+            >
+              {location}
+            </Text>
+          </View>
+        </View>
+      </View>
+    );
+  };
+
   return (
-    <ScrollView style={{ flex: 1 }}>
+    <View style={{ flex: 1 }}>
       <Image
         style={styles.background}
         source={require("../../images/imgBG.png")}
@@ -39,193 +145,19 @@ export const ProfileScreen = ({ navigation }) => {
         </View>
         <TouchableOpacity
           activeOpacity={0.8}
-          onPress={() => navigation.navigate("Login")}
+          onPress={() => dispatch(logOut())}
         >
           <Image
             style={{ position: "absolute", top: 22, right: 16 }}
             source={require("../../images/log-out.png")}
           />
         </TouchableOpacity>
-        <Text style={{ ...styles.title, marginTop: 92 }}>Natali Romanova</Text>
-        <View style={{ marginBottom: 0 }}>
-          <View style={{ marginBottom: 24 }}>
-            <Image
-              style={{ width: "100%", borderRadius: 8 }}
-              source={require("../../images/111.png")}
-            />
-            <Text
-              style={{
-                ...styles.contentText,
-                fontFamily: "Roboto-Medium",
-                marginVertical: 8,
-              }}
-            >
-              Wood
-            </Text>
-            <View
-              style={{
-                flexDirection: "row",
-                justifyContent: "space-between",
-                alignItems: "baseline",
-              }}
-            >
-              <View style={{ flexDirection: "row" }}>
-                <View
-                  style={{
-                    flexDirection: "row",
-                    marginRight: 24,
-                    alignItems: "center",
-                  }}
-                >
-                  <Image
-                    style={{ marginRight: 6 }}
-                    source={require("../../images/commentIcon.png")}
-                  />
-                  <Text style={styles.contentText}>8</Text>
-                </View>
-                <View style={{ flexDirection: "row", alignItems: "center" }}>
-                  <Image
-                    style={{ marginRight: 6 }}
-                    source={require("../../images/likeIcon.png")}
-                  />
-                  <Text style={styles.contentText}>153</Text>
-                </View>
-              </View>
-              <View style={{ flexDirection: "row", alignItems: "center" }}>
-                <Image
-                  style={{ marginRight: 4 }}
-                  source={require("../../images/map-pin.png")}
-                />
-                <Text
-                  style={{
-                    ...styles.contentText,
-                    textDecorationLine: "underline",
-                  }}
-                >
-                  Ukraine
-                </Text>
-              </View>
-            </View>
-          </View>
-          <View style={{ marginBottom: 24 }}>
-            <Image
-              style={{ width: "100%", borderRadius: 8 }}
-              source={require("../../images/222.jpg")}
-            />
-            <Text
-              style={{
-                ...styles.contentText,
-                fontFamily: "Roboto-Medium",
-                marginVertical: 8,
-              }}
-            >
-              Black Sea
-            </Text>
-            <View
-              style={{
-                flexDirection: "row",
-                justifyContent: "space-between",
-                alignItems: "baseline",
-              }}
-            >
-              <View style={{ flexDirection: "row" }}>
-                <View
-                  style={{
-                    flexDirection: "row",
-                    marginRight: 24,
-                    alignItems: "center",
-                  }}
-                >
-                  <Image
-                    style={{ marginRight: 6 }}
-                    source={require("../../images/commentIcon.png")}
-                  />
-                  <Text style={styles.contentText}>5</Text>
-                </View>
-                <View style={{ flexDirection: "row", alignItems: "center" }}>
-                  <Image
-                    style={{ marginRight: 6 }}
-                    source={require("../../images/likeIcon.png")}
-                  />
-                  <Text style={styles.contentText}>132</Text>
-                </View>
-              </View>
-              <View style={{ flexDirection: "row", alignItems: "center" }}>
-                <Image
-                  style={{ marginRight: 4 }}
-                  source={require("../../images/map-pin.png")}
-                />
-                <Text
-                  style={{
-                    ...styles.contentText,
-                    textDecorationLine: "underline",
-                  }}
-                >
-                  Ukraine
-                </Text>
-              </View>
-            </View>
-          </View>
-          <View style={{ marginBottom: 24 }}>
-            <Image
-              style={{ width: "100%", borderRadius: 8 }}
-              source={require("../../images/333.jpg")}
-            />
-            <Text
-              style={{
-                ...styles.contentText,
-                fontFamily: "Roboto-Medium",
-                marginVertical: 8,
-              }}
-            >
-              A house in Venice
-            </Text>
-            <View
-              style={{
-                flexDirection: "row",
-                justifyContent: "space-between",
-                alignItems: "baseline",
-              }}
-            >
-              <View style={{ flexDirection: "row" }}>
-                <View
-                  style={{
-                    flexDirection: "row",
-                    marginRight: 24,
-                    alignItems: "center",
-                  }}
-                >
-                  <Image
-                    style={{ marginRight: 6 }}
-                    source={require("../../images/commentIcon.png")}
-                  />
-                  <Text style={styles.contentText}>52</Text>
-                </View>
-                <View style={{ flexDirection: "row", alignItems: "center" }}>
-                  <Image
-                    style={{ marginRight: 6 }}
-                    source={require("../../images/likeIcon.png")}
-                  />
-                  <Text style={styles.contentText}>13</Text>
-                </View>
-              </View>
-              <View style={{ flexDirection: "row", alignItems: "center" }}>
-                <Image
-                  style={{ marginRight: 4 }}
-                  source={require("../../images/map-pin.png")}
-                />
-                <Text
-                  style={{
-                    ...styles.contentText,
-                    textDecorationLine: "underline",
-                  }}
-                >
-                  Italy
-                </Text>
-              </View>
-            </View>
-          </View>
-        </View>
+        <Text style={{ ...styles.title, marginTop: 92 }}>{user.name}</Text>
+        <FlatList
+          data={myPosts}
+          renderItem={Post}
+          keyExtractor={(item) => item.id}
+        />
       </View>
       {/* <View style={styles.footer}>
         <Image
@@ -245,7 +177,7 @@ export const ProfileScreen = ({ navigation }) => {
         </View>
         <Image source={require("../../images/add_1.png")} />
       </View> */}
-    </ScrollView>
+    </View>
   );
 };
 
@@ -268,6 +200,7 @@ const styles = StyleSheet.create({
     // flex: 1,
     // alignItems: "center",
     // justifyContent: "center",
+    paddingBottom: 170,
     backgroundColor: "#fff",
     marginTop: 140,
     minHeight: windowHeight - 140,

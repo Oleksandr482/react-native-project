@@ -13,6 +13,8 @@ import {
   Dimensions,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { useDispatch } from "react-redux";
+import { register } from "../../redux/auth/authOperations";
 
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
@@ -23,6 +25,8 @@ export const RegistrationScreen = ({ navigation }) => {
   const [password, setPassword] = useState("");
   const [isOpenPassword, setIsOpenPassword] = useState(false);
   const [isShowKeyboard, setIsShowKeyboard] = useState(false);
+
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const hideKeyboard = Keyboard.addListener("keyboardDidHide", () => {
@@ -53,7 +57,8 @@ export const RegistrationScreen = ({ navigation }) => {
 
   const onRegister = () => {
     if (name !== "" && email !== "" && password !== "") {
-      console.log({ name, email, password });
+      dispatch(register({ name, email, password }));
+      // console.log({ name, email, password });
     } else {
       setIsShowKeyboard(false);
       return alert("Fill in all the fields!!!");
@@ -63,7 +68,6 @@ export const RegistrationScreen = ({ navigation }) => {
     setEmail("");
     setPassword("");
     setIsShowKeyboard(false);
-    navigation.navigate("Home");
   };
 
   return (

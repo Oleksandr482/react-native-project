@@ -7,23 +7,46 @@ import {
   TouchableOpacity,
   FlatList,
 } from "react-native";
+import { useDispatch, useSelector } from "react-redux";
+import { db } from "../../firebase/config";
+import { logOut } from "../../redux/auth/authOperations";
+import { selectUser } from "../../redux/auth/authSelectors";
 
-export const DefaultScreen = ({ navigation, route }) => {
+export const DefaultScreen = ({ navigation }) => {
   const [posts, setPosts] = useState([]);
-  useEffect(() => {
-    if (route.params) {
-      setPosts([...posts, route.params]);
+  const dispatch = useDispatch();
+  const { name, email } = useSelector(selectUser);
+
+  const getPosts = async () => {
+    try {
+      const snapshot = await db.collection("posts").get();
+      let posts = [];
+      await snapshot.forEach((doc) => {
+        posts = [
+          ...posts,
+          {
+            ...doc.data(),
+            id: doc.id,
+          },
+        ];
+      });
+      await setPosts(posts);
+    } catch (e) {
+      console.log(e.message);
     }
-    console.log(posts);
-  }, [route.params]);
+  };
+
+  useEffect(() => {
+    getPosts();
+  }, []);
 
   const Item = ({ item }) => {
-    const { photo, title, location, locationCoords } = item;
+    const { id, photoUrl, title, location, locationCoords } = item;
     return (
       <View style={{ marginBottom: 24 }}>
         <Image
           style={{ width: "100%", height: 240, borderRadius: 8 }}
-          source={{ uri: photo }}
+          source={{ uri: photoUrl }}
         />
         <Text
           style={{
@@ -49,7 +72,14 @@ export const DefaultScreen = ({ navigation, route }) => {
                 alignItems: "center",
               }}
             >
-              <TouchableOpacity onPress={() => navigation.navigate("Comments")}>
+              <TouchableOpacity
+                onPress={() =>
+                  navigation.navigate("Comments", {
+                    postId: id,
+                    photoUrl: photoUrl,
+                  })
+                }
+              >
                 <Image
                   style={{ marginRight: 6 }}
                   source={require("../../images/commentIcon.png")}
@@ -93,7 +123,7 @@ export const DefaultScreen = ({ navigation, route }) => {
         <Text style={styles.screenTitle}>Posts</Text>
         <TouchableOpacity
           activeOpacity={0.8}
-          onPress={() => navigation.navigate("Login")}
+          onPress={() => dispatch(logOut())}
         >
           <Image
             style={{ position: "absolute", right: 16, bottom: 10 }}
@@ -108,16 +138,15 @@ export const DefaultScreen = ({ navigation, route }) => {
             source={require("../../images/userAva.jpg")}
           />
           <View>
-            <Text style={styles.userName}>Natali Romanova</Text>
-            <Text style={styles.userEmail}>email@example.com</Text>
+            <Text style={styles.userName}>{name}</Text>
+            <Text style={styles.userEmail}>{email}</Text>
           </View>
         </View>
         <View style={{ paddingHorizontal: 16 }}>
           <FlatList
-            // style={{ paddingBottom: 100 }}
             data={posts}
             renderItem={Item}
-            keyExtractor={(item) => item.photo}
+            keyExtractor={(item) => item.id}
           />
         </View>
       </View>

@@ -13,6 +13,10 @@ import {
 } from "react-native";
 import * as MediaLibrary from "expo-media-library";
 import * as Location from "expo-location";
+import { db, storage } from "../../firebase/config";
+import { nanoid } from "@reduxjs/toolkit";
+import { useSelector } from "react-redux";
+import { selectUser } from "../../redux/auth/authSelectors";
 
 export const CreatePostScreen = ({ navigation }) => {
   const [hasPermission, setHasPermission] = useState(null);
@@ -22,6 +26,8 @@ export const CreatePostScreen = ({ navigation }) => {
   const [title, setTitle] = useState("");
   const [location, setLocation] = useState("");
   const [locationCoords, setLocationCoords] = useState(null);
+
+  const { name, userId } = useSelector(selectUser);
 
   // const [type, setType] = useState(Camera.Constants.Type.back);
 
@@ -41,9 +47,28 @@ export const CreatePostScreen = ({ navigation }) => {
     return <Text>No access to camera</Text>;
   }
 
+  const uploadPhoto = async () => {
+    const res = await fetch(photo);
+    const newPhoto = await res.blob();
+    const photoId = nanoid();
+    await storage.ref(`photos/${photoId}`).put(newPhoto);
+    const photoURL = await storage
+      .ref("photos")
+      .child(photoId)
+      .getDownloadURL();
+    return photoURL;
+  };
+
+  const uploadPost = async () => {
+    const photoUrl = await uploadPhoto();
+    await db
+      .collection("posts")
+      .add({ name, userId, photoUrl, title, location, locationCoords });
+  };
+
   const createPost = () => {
-    const post = { photo, title, location, locationCoords };
-    navigation.navigate("Default", post);
+    uploadPost();
+    navigation.navigate("Default");
     setPhoto(null);
     setTitle("");
     setLocation("");
@@ -76,14 +101,14 @@ export const CreatePostScreen = ({ navigation }) => {
                       position: "absolute",
                     }}
                   />
-                  <TouchableOpacity
+                  {/* <TouchableOpacity
                     style={styles.cameraBox}
                     onPress={() => {
                       setPhoto(null);
                     }}
                   >
                     <Image source={require("../../images/camera.png")} />
-                  </TouchableOpacity>
+                  </TouchableOpacity> */}
                 </>
               ) : (
                 <Camera
