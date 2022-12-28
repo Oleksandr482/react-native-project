@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import {
-  StyleSheet,
-  Text,
   View,
+  Text,
+  StyleSheet,
   Image,
   TouchableOpacity,
+  Dimensions,
   FlatList,
 } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
@@ -12,35 +13,35 @@ import { db } from "../../firebase/config";
 import { logOut } from "../../redux/auth/authOperations";
 import { selectUser } from "../../redux/auth/authSelectors";
 
-export const DefaultScreen = ({ navigation }) => {
-  const [posts, setPosts] = useState([]);
-  const dispatch = useDispatch();
-  const { name, email } = useSelector(selectUser);
+const windowWidth = Dimensions.get("window").width;
+const windowHeight = Dimensions.get("window").height;
 
-  const getPosts = async () => {
+export const ProfileScreen = ({ navigation }) => {
+  const dispatch = useDispatch();
+  const user = useSelector(selectUser);
+  const [myPosts, setMyPosts] = useState([]);
+
+  useEffect(() => {
+    getMyPosts();
+  }, []);
+
+  const getMyPosts = async () => {
     try {
-      const snapshot = await db.collection("posts").get();
+      const snapshot = await db
+        .collection("posts")
+        .where("userId", "==", user.userId)
+        .get();
       let posts = [];
       await snapshot.forEach((doc) => {
-        posts = [
-          ...posts,
-          {
-            ...doc.data(),
-            id: doc.id,
-          },
-        ];
+        posts = [...posts, { ...doc.data(), id: doc.id }];
       });
-      await setPosts(posts);
+      await setMyPosts(posts);
     } catch (e) {
       console.log(e.message);
     }
   };
 
-  useEffect(() => {
-    getPosts();
-  }, []);
-
-  const Item = ({ item }) => {
+  const Post = ({ item }) => {
     const { id, photoUrl, title, location, locationCoords } = item;
     return (
       <View style={{ marginBottom: 24 }}>
@@ -117,108 +118,93 @@ export const DefaultScreen = ({ navigation }) => {
       </View>
     );
   };
+
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.screenTitle}>Posts</Text>
+    <View style={{ flex: 1 }}>
+      <Image
+        style={styles.background}
+        source={require("../../images/imgBG.png")}
+        resizeMode="cover"
+      />
+
+      <View style={styles.wrapper}>
+        <View style={styles.avatar}>
+          <Image
+            style={styles.avatarImg}
+            source={require("../../images/userAva.jpg")}
+          />
+          <View style={styles.addPhoto}>
+            <Image source={require("../../images/delete.png")} />
+          </View>
+        </View>
         <TouchableOpacity
           activeOpacity={0.8}
           onPress={() => dispatch(logOut())}
         >
           <Image
-            style={{ position: "absolute", right: 16, bottom: 10 }}
+            style={{ position: "absolute", top: 22, right: 16 }}
             source={require("../../images/log-out.png")}
           />
         </TouchableOpacity>
-      </View>
-      <View style={{ marginBottom: 320 }}>
-        <View style={styles.userWrapper}>
-          <Image
-            style={styles.userAvatar}
-            source={require("../../images/userAva.jpg")}
-          />
-          <View>
-            <Text style={styles.userName}>{name}</Text>
-            <Text style={styles.userEmail}>{email}</Text>
-          </View>
-        </View>
-        <View style={{ paddingHorizontal: 16 }}>
-          <FlatList
-            data={posts}
-            renderItem={Item}
-            keyExtractor={(item) => item.id}
-          />
-        </View>
+        <Text style={{ ...styles.title, marginTop: 92 }}>{user.name}</Text>
+        <FlatList
+          data={myPosts}
+          renderItem={Post}
+          keyExtractor={(item) => item.id}
+        />
       </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#ffffff",
+  background: {
+    position: "absolute",
+    width: windowWidth,
+    height: windowHeight,
+    top: 0,
+    left: 0,
   },
-  header: {
-    paddingVertical: 11,
-    paddingTop: 45,
-
-    borderBottomColor: "rgba(0, 0, 0, 0.3)",
-
-    borderBottomWidth: 1,
-  },
-  screenTitle: {
-    fontFamily: "Roboto-Medium",
-    fontSize: 17,
-    lineHeight: 22,
-    textAlign: "center",
-  },
-  userWrapper: {
+  wrapper: {
+    paddingBottom: 170,
+    backgroundColor: "#fff",
+    marginTop: 140,
+    minHeight: windowHeight - 140,
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
     paddingHorizontal: 16,
-    paddingVertical: 32,
-    flexDirection: "row",
-    alignItems: "center",
   },
-  userAvatar: {
-    width: 60,
-    height: 60,
-    borderRadius: 16,
-    marginRight: 8,
-  },
-  userName: {
-    fontFamily: "Roboto-Medium",
-    fontSize: 13,
-    lineHeight: 15,
+  title: {
+    marginBottom: 32,
+    lineHeight: 35,
     color: "#212121",
+    fontSize: 30,
+    textAlign: "center",
+    fontFamily: "Roboto-Medium",
   },
-  userEmail: {
-    fontFamily: "Roboto-Regular",
-    fontSize: 11,
-    lineHeight: 13,
-    color: "rgba(33, 33, 33, 0.8)",
+  avatar: {
+    width: 120,
+    height: 120,
+    borderRadius: 16,
+    backgroundColor: "#F6F6F6",
+
+    position: "absolute",
+    top: -60,
+    left: (windowWidth - 121) / 2,
   },
-  postsWrapper: {
-    paddingHorizontal: 16,
-    marginBottom: 70,
+  avatarImg: {
+    width: "100%",
+    height: "100%",
+    borderRadius: 16,
+  },
+  addPhoto: {
+    position: "absolute",
+    right: -18.5,
+    bottom: 14,
   },
   contentText: {
     fontSize: 16,
     lineHeight: 19,
     color: "#212121",
-  },
-  footer: {
-    position: "absolute",
-    bottom: 0,
-    width: "100%",
-    backgroundColor: "#ffffff",
-    justifyContent: "center",
-    // alignItems: "flex-end",
-    flexDirection: "row",
-    paddingVertical: 9,
-    borderTopColor: "rgba(0, 0, 0, 0.3)",
-    borderTopWidth: 1,
-  },
-  footerIcon: {
-    marginRight: 31,
   },
 });

@@ -180,6 +180,7 @@ export const CreatePostScreen = ({ navigation }) => {
               ...styles.button,
               backgroundColor:
                 photo && title && location ? "#FF6C00" : "#f6f6f6",
+              color: photo && title && location ? "#f6f6f6" : "#bdbdbd",
             }}
             onPress={createPost}
           >
@@ -201,11 +202,10 @@ const styles = StyleSheet.create({
   },
   header: {
     paddingVertical: 11,
-    paddingTop: 45,
+    paddingTop: 60,
 
     borderBottomColor: "rgba(0, 0, 0, 0.3)",
     borderBottomWidth: 1,
-    // borderWidth: 1,
   },
   screenTitle: {
     fontFamily: "Roboto-Medium",
@@ -222,9 +222,6 @@ const styles = StyleSheet.create({
   },
   addPhoto: {
     marginBottom: 32,
-
-    // borderWidth: 1,
-    // borderColor: "red",
   },
   photo: {
     justifyContent: "center",
@@ -275,7 +272,6 @@ const styles = StyleSheet.create({
   },
   buttonTitle: {
     textAlign: "center",
-    color: "#bdbdbd",
   },
   footer: {
     position: "absolute",
@@ -283,13 +279,7 @@ const styles = StyleSheet.create({
     width: "100%",
     backgroundColor: "#ffffff",
     justifyContent: "center",
-    // alignItems: "flex-end",
     flexDirection: "row",
     paddingVertical: 9,
-    // borderTopColor: "rgba(0, 0, 0, 0.3)",
-    // borderTopWidth: 1,
-  },
-  footerIcon: {
-    marginRight: 31,
   },
 });

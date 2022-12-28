@@ -1,4 +1,3 @@
-// import { useRoute } from "../../router";
 import { Ionicons } from "@expo/vector-icons";
 import { Feather } from "@expo/vector-icons";
 import { View } from "react-native";
@@ -8,7 +7,7 @@ import { PostsScreen } from "../PostsScreen/PostsScreen";
 import { CreatePostScreen } from "../CreatePostScreen/CreatePostScreen";
 import { ProfileScreen } from "../ProfileScreen/ProfileScreen";
 
-const HomeTabs = createBottomTabNavigator();
+export const HomeTabs = createBottomTabNavigator();
 
 export const Home = () => {
   return (

@@ -7,8 +7,7 @@ import {
   TouchableOpacity,
   View,
   FlatList,
-  SafeAreaView,
-  ScrollView,
+  Keyboard,
 } from "react-native";
 import { useSelector } from "react-redux";
 import { db } from "../../firebase/config";
@@ -26,12 +25,18 @@ export const CommentsScreen = ({ navigation, route }) => {
 
   const uploadComment = async () => {
     try {
-      await db.collection("posts").doc(postId).collection("comments").add({
+      const newComment = {
         userName: user.name,
         comment: comment,
         date: Date.now(),
         userId: user.userId,
-      });
+      };
+      await db
+        .collection("posts")
+        .doc(postId)
+        .collection("comments")
+        .add(newComment);
+      setAllComments([...allComments, newComment]);
     } catch (e) {
       console.log(e.message);
     }
@@ -56,6 +61,7 @@ export const CommentsScreen = ({ navigation, route }) => {
 
   const createComment = () => {
     uploadComment();
+    Keyboard.dismiss();
     setComment("");
   };
 
@@ -149,10 +155,9 @@ const styles = StyleSheet.create({
   },
   header: {
     paddingVertical: 11,
-    paddingTop: 50,
+    paddingTop: 60,
     borderBottomColor: "rgba(0, 0, 0, 0.3)",
     borderBottomWidth: 1,
-    // borderWidth: 1,
   },
   screenTitle: {
     fontFamily: "Roboto-Medium",
@@ -168,9 +173,6 @@ const styles = StyleSheet.create({
   },
   addPhoto: {
     marginBottom: 32,
-
-    // borderWidth: 1,
-    // borderColor: "red",
   },
   photo: {
     justifyContent: "center",
@@ -181,21 +183,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#e8e8e8",
     backgroundColor: "#f6f6f6",
-    // marginBottom: 8,
   },
-  addPhotoText: {
-    fontFamily: "Roboto-Regular",
-    fontSize: 16,
-    lineHeight: 19,
-    color: "#bdbdbd",
-  },
-
   commentWrapper: {
     flexDirection: "row-reverse",
     marginBottom: 24,
-
-    // borderWidth: 1,
-    // borderColor: "red",
   },
   commentImage: {
     width: 28,
@@ -213,9 +204,6 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     borderTopEndRadius: 0,
     color: "#212121",
-
-    // borderWidth: 1,
-    // borderColor: "red",
   },
   commentDate: {
     fontFamily: "Roboto-Regular",
@@ -223,14 +211,6 @@ const styles = StyleSheet.create({
     lineHeight: 12,
 
     color: "#bdbdbd",
-  },
-  cameraBox: {
-    justifyContent: "center",
-    alignItems: "center",
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: "#ffffff",
   },
   input: {
     height: 50,
@@ -247,16 +227,7 @@ const styles = StyleSheet.create({
 
     color: "#BDBDBD",
   },
-  button: {
-    backgroundColor: "#F6f6f6",
-    borderRadius: 25.5,
-    padding: 16,
-    marginTop: 16,
-    marginBottom: 16,
-  },
-  buttonTitle: {
-    textAlign: "center",
-  },
+
   footer: {
     position: "absolute",
     bottom: 0,
@@ -264,14 +235,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#ffffff",
     justifyContent: "center",
     paddingHorizontal: 16,
-    // alignItems: "flex-end",
-    // flexDirection: "row",
-    // paddingVertical: 9,
-
-    // borderWidth: 1,
-    // borderColor: "red",
-    // borderTopColor: "rgba(0, 0, 0, 0.3)",
-    // borderTopWidth: 1,
   },
   footerInput: {
     borderRadius: 25,

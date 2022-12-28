@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import * as Location from "expo-location";
+import { HomeTabs } from "../Home/Home";
 
 export const MapScreen = ({ navigation, route }) => {
   const [location, setLocation] = useState(null);
@@ -59,15 +60,11 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   header: {
-    // position: "absolute",
-    // top: 0,
-    // left: 0,
     width: "100%",
     paddingVertical: 11,
-    paddingTop: 30,
+    paddingTop: 60,
     borderBottomColor: "rgba(0, 0, 0, 0.3)",
     borderBottomWidth: 1,
-    // borderWidth: 1,
   },
   screenTitle: {
     fontFamily: "Roboto-Medium",
@@ -76,7 +73,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   mapStyle: {
+    flex: 1,
     width: Dimensions.get("window").width,
-    height: Dimensions.get("window").height - 120,
   },
 });

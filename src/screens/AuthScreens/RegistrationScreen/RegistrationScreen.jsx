@@ -14,7 +14,7 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useDispatch } from "react-redux";
-import { register } from "../../redux/auth/authOperations";
+import { register } from "../../../redux/auth/authOperations";
 
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
@@ -58,7 +58,6 @@ export const RegistrationScreen = ({ navigation }) => {
   const onRegister = () => {
     if (name !== "" && email !== "" && password !== "") {
       dispatch(register({ name, email, password }));
-      // console.log({ name, email, password });
     } else {
       setIsShowKeyboard(false);
       return alert("Fill in all the fields!!!");
@@ -79,19 +78,16 @@ export const RegistrationScreen = ({ navigation }) => {
         <View style={{ flex: 1, justifyContent: "flex-end" }}>
           <Image
             style={styles.background}
-            source={require("../../images/imgBG.png")}
+            source={require("../../../images/imgBG.png")}
             resizeMode="cover"
           />
 
           <View style={styles.wrapper}>
-            {/* <View style={styles.formContainer}> */}
-            {/* <View style={styles.avaWrapper}> */}
             <View style={styles.avatar}>
               <View style={styles.addPhoto}>
-                <Image source={require("../../images/add.png")} />
+                <Image source={require("../../../images/add.png")} />
               </View>
             </View>
-            {/* </View> */}
 
             <Text style={{ ...styles.title, marginTop: 92 }}>Registration</Text>
 
@@ -165,7 +161,6 @@ export const RegistrationScreen = ({ navigation }) => {
                 </View>
               </>
             )}
-            {/* </View> */}
           </View>
         </View>
       </TouchableWithoutFeedback>

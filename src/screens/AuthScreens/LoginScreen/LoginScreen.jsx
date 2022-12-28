@@ -14,7 +14,7 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useDispatch } from "react-redux";
-import { logIn } from "../../redux/auth/authOperations";
+import { logIn } from "../../../redux/auth/authOperations";
 
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
@@ -67,7 +67,7 @@ export const LoginScreen = ({ navigation }) => {
         <View style={{ flex: 1, justifyContent: "flex-end" }}>
           <Image
             style={styles.background}
-            source={require("../../images/imgBG.png")}
+            source={require("../../../images/imgBG.png")}
             resizeMode="cover"
           />
 
@@ -198,21 +198,5 @@ const styles = StyleSheet.create({
     fontSize: 30,
     textAlign: "center",
     fontFamily: "Roboto-Medium",
-  },
-  avatar: {
-    width: 120,
-    height: 120,
-    borderRadius: 16,
-    backgroundColor: "#F6F6F6",
-
-    position: "absolute",
-    top: -60,
-    left: (windowWidth - 121) / 2,
-  },
-
-  addPhoto: {
-    position: "absolute",
-    right: -12.5,
-    bottom: 14,
   },
 });
