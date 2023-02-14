@@ -27,15 +27,19 @@ export const ProfileScreen = ({ navigation }) => {
 
   const getMyPosts = async () => {
     try {
-      const snapshot = await db
+      await db
         .collection("posts")
         .where("userId", "==", user.userId)
-        .get();
-      let posts = [];
-      await snapshot.forEach((doc) => {
-        posts = [...posts, { ...doc.data(), id: doc.id }];
-      });
-      await setMyPosts(posts);
+        .onSnapshot((snap) => {
+          const myPosts = [];
+          snap.forEach((doc) => myPosts.push(doc.data()));
+          setMyPosts(myPosts);
+        });
+      // let posts = [];
+      // await snapshot.forEach((doc) => {
+      //   posts = [...posts, { ...doc.data(), id: doc.id }];
+      // });
+      // await setMyPosts(posts);
     } catch (e) {
       console.log(e.message);
     }

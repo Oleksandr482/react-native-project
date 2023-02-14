@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   StyleSheet,
   Text,
@@ -19,18 +19,23 @@ export const DefaultScreen = ({ navigation }) => {
 
   const getPosts = async () => {
     try {
-      const snapshot = await db.collection("posts").get();
-      let posts = [];
-      await snapshot.forEach((doc) => {
-        posts = [
-          ...posts,
-          {
-            ...doc.data(),
-            id: doc.id,
-          },
-        ];
+      await db.collection("posts").onSnapshot((snapshot) => {
+        let posts = [];
+        snapshot.forEach((doc) => posts.push(doc.data()));
+        setPosts(posts);
       });
-      await setPosts(posts);
+      ///////////////////////
+      // await snapshot.forEach((doc) => {
+      //   posts = [
+      //     ...posts,
+      //     {
+      //       ...doc.data(),
+      //       id: doc.id,
+      //     },
+      //   ];
+      // });
+      // setPosts(posts);
+      /////////////////////////////
     } catch (e) {
       console.log(e.message);
     }

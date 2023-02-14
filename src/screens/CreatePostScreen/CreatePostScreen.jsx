@@ -33,6 +33,8 @@ export const CreatePostScreen = ({ navigation }) => {
 
   useEffect(() => {
     (async () => {
+      await Location.requestForegroundPermissionsAsync();
+
       const { status } = await Camera.requestCameraPermissionsAsync();
       await MediaLibrary.requestPermissionsAsync();
 
@@ -61,13 +63,14 @@ export const CreatePostScreen = ({ navigation }) => {
 
   const uploadPost = async () => {
     const photoUrl = await uploadPhoto();
+    const id = nanoid();
     await db
       .collection("posts")
-      .add({ name, userId, photoUrl, title, location, locationCoords });
+      .add({ id, name, userId, photoUrl, title, location, locationCoords });
   };
 
-  const createPost = () => {
-    uploadPost();
+  const createPost = async () => {
+    await uploadPost();
     navigation.navigate("Default");
     setPhoto(null);
     setTitle("");
